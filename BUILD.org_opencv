@@ -1,0 +1,66 @@
+# XXX: This maybe needs to be edited if your default workspace has a name?
+load("@//:org_opencv.bzl", "sample")
+
+android_library(
+    name = "sdk",
+    deps = [":jni"],
+    srcs = glob(["sdk/java/src/**/*.java"]),
+    idl_srcs = glob(["sdk/java/src/**/*.aidl"]),
+    idl_import_root = "sdk",
+    custom_package = "org.opencv",
+    manifest = "sdk/java/AndroidManifest.xml",
+    resource_files = glob(["sdk/java/res/**"]),
+    visibility = ["//visibility:public"],
+)
+
+# XXX: This has armeabi-v7a hardcoded.
+#      I guess it'd be better to have a target for each ABI and then
+#      use a rule to depend on the right one in :sdk but I'm lazy.
+cc_library(
+    name = "jni",
+    srcs = glob(["sdk/native/libs/armeabi-v7a/*.so"]),
+    hdrs = glob(["sdk/native/jni/include/**/*.h*"]),
+    includes = ["sdk/native/jni/include"],
+)
+
+sample("tutorial-1-camerapreview", "org.opencv.samples.tutorial1")
+sample("tutorial-3-cameracontrol", "org.opencv.samples.tutorial3")
+sample("color-blob-detection", "org.opencv.samples.colorblobdetect")
+sample("15-puzzle", "org.opencv.samples.puzzle15")
+sample("image-manipulations", "org.opencv.samples.imagemanipulations")
+
+android_binary(
+    # This name is necessary so that the .so is named correctly.
+    name = "mixed_sample",
+    deps = [":sdk", ":mixed_sample_jni"],
+    srcs = glob(["samples/tutorial-2-mixedprocessing/src/**/*.java"]),
+    custom_package = "org.opencv.samples.tutorial2",
+    manifest = "samples/tutorial-2-mixedprocessing/AndroidManifest.xml",
+    resource_files = glob(["samples/tutorial-2-mixedprocessing/res/**/*"]),
+    legacy_native_support = 0,
+)
+
+cc_library(
+    name = "mixed_sample_jni",
+    srcs = glob(["samples/tutorial-2-mixedprocessing/jni/*.cpp"]),
+    deps = [":jni"],
+)
+
+android_binary(
+    # This name is necessary so that the .so is named correctly.
+    name = "detection_based_tracker",
+    deps = [":sdk", ":detection_based_tracker_jni"],
+    srcs = glob(["samples/face-detection/src/**/*.java"]),
+    custom_package = "org.opencv.samples.facedetect",
+    manifest = "samples/face-detection/AndroidManifest.xml",
+    resource_files = glob(["samples/face-detection/res/**/*"]),
+    legacy_native_support = 0,
+)
+
+cc_library(
+    name = "detection_based_tracker_jni",
+    srcs = glob(["samples/face-detection/jni/*.cpp"]),
+    hdrs = glob(["samples/face-detection/jni/*.h"]),
+    includes = ["samples/face-detection/jni"],
+    deps = [":jni"],
+)

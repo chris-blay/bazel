@@ -1,0 +1,31 @@
+android_library(
+    name = "library_debug",
+    custom_package = "com.covertbagel.androidopenaccessorybridge",
+    srcs = [":BuildConfig_debug"]
+        + glob(["AndroidOpenAccessoryBridge/library/src/main/java/**/*.java"]),
+    visibility = ["//visibility:public"],
+)
+
+android_library(
+    name = "library_release",
+    custom_package = "com.covertbagel.androidopenaccessorybridge",
+    srcs = [":BuildConfig_release"]
+        + glob(["AndroidOpenAccessoryBridge/library/src/main/java/**/*.java"]),
+    visibility = ["//visibility:public"],
+)
+
+genrule(
+    name = "BuildConfig_debug",
+    outs = ["debug/BuildConfig.java"],
+    cmd = "echo 'package com.covertbagel.androidopenaccessorybridge;"
+        + "final class BuildConfig {"
+        + "static final boolean DEBUG = true; }' > $(@)",
+)
+
+genrule(
+    name = "BuildConfig_release",
+    outs = ["release/BuildConfig.java"],
+    cmd = "echo 'package com.covertbagel.androidopenaccessorybridge;"
+        + "final class BuildConfig {"
+        + "static final boolean DEBUG = false; }' > $(@)",
+)
